@@ -110,6 +110,8 @@ This is fine because newer car models are typically intoduced for sale up to 1 y
 ## Check location names
 SELECT DISTINCT location,
 FROM Cleaned_Stolen_VehicleDB
+
+
 /* 
 Decided to replace forward slash with an underscore for easy readability.
 */
