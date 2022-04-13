@@ -1,0 +1,163 @@
+#Remove Duplicate Records
+CREATE TABLE StolenVehicles_Dataset.cleaned_stolenvehicles as
+
+SELECT 
+DISTINCT VehicleDesc,
+VehicleType,
+VehicleModel,
+ModelYear,
+color,
+DateStolen,
+Location
+
+FROM StolenVehicles_Dataset.stolenvehicles
+
+## Remove null values
+Select * 
+From StolenVehicles_Dataset.cleaned_stolenvehicles
+Where VehicleType is not null and VehicleDesc is not null 
+
+## USE a temporary table to store cleaned (non-duplicate & non null values)
+WITH Cleaned_Stolen_VehicleDB as (
+    SELECT  * 
+    From StolenVehicles_Dataset.cleaned_stolenvehicles
+    WHERE VehicleType is not null and VehicleDesc is not null 
+
+    )
+
+## Check Vehicle Model for typos or categorizing mistakes
+SELECT 
+    VehicleModel,
+    COUNT(VehicleModel) as VModel_count
+FROM Cleaned_Stolen_VehicleDB
+GROUP BY VehicleModel
+HAVING VModel_count <=2 
+
+/*
+
+Based on results of above query, we now have 73 rows of vehicle models which appeared up to two times in this 4+K dataset.
+Further investigation shall take place to ensure there are no typos or miscategorization
+
+Following are the typos and miscategorization found:
+
+*/
+
+## Change Landrover to Land Rover
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Land Rover' WHERE vehiclemodel='Landrover'
+
+
+## Change Rover to Land Rover
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Land Rover' WHERE vehiclemodel='Rover'
+
+## Change Mitsubishio Fuso to Fuso
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Fuso' WHERE vehiclemodel='Mitsubishio Fuso'
+
+## Change Nissan Diesel to Nissan
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Nissan' WHERE vehiclemodel='Nissan Diesel'
+
+## Change Toyota Lexus to Lexus
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Lexus' WHERE vehiclemodel='Toyota Lexus'
+
+## Change Mobile Machine to Takeuchi
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET vehiclemodel='Takeuchi' WHERE vehiclemodel='Mobile Machine'
+
+## Update FERGUSSON to Ferguson
+UPDATE StolenVehicles_Dataset.cleaned_stolenvehicles
+SET VehicleDesc='Ferguson' WHERE VehicleDesc='FERGUSSON'
+
+## USE a temporary table to store cleaned (non-duplicate & non null values)
+with Cleaned_Stolen_VehicleDB as (
+    SELECT  * 
+    From StolenVehicles_Dataset.cleaned_stolenvehicles
+    WHERE VehicleType is not null and VehicleDesc is not null 
+
+    )
+
+## Check Model Year Ranges
+Select MIN(ModelYear) as Oldest_model, MAX(ModelYear) as Newest_model
+From Cleaned_Stolen_VehicleDB
+
+ 
+
+
+
+## USE a temporary table to store cleaned (non-duplicate & non null values)
+WITH Cleaned_Stolen_VehicleDB as (
+    SELECT  * 
+    From StolenVehicles_Dataset.cleaned_stolenvehicles
+    WHERE VehicleType is not null and VehicleDesc is not null 
+
+    )
+
+## Check report date range (6 months)
+SELECT MIN(DateStolen) as Report_Start_Date, MAX(DateStolen) as Report_End_Date
+FROM Cleaned_Stolen_VehicleDB
+
+ 
+
+## USE a temporary table to store cleaned (non-duplicate & non null values)
+WITH Cleaned_Stolen_VehicleDB as (
+    SELECT  * 
+    From StolenVehicles_Dataset.cleaned_stolenvehicles
+    WHERE VehicleType is not null and VehicleDesc is not null 
+
+    )
+
+## Compare Model Year to Year Stolen
+SELECT distinct stolen_date,
+VehicleDesc,
+VehicleType,
+VehicleModel,
+ModelYear,
+color,
+Location
+
+From Cleaned_Stolen_VehicleDB,
+    (SELECT 
+    distinct extract(year FROM DateStolen) as stolen_date
+
+    FROM  StolenVehicles_Dataset.cleaned_stolenvehicles) as year_of_vehicle_theft
+
+WHERE ModelYear>stolen_date
+
+
+
+/*
+
+Above query is checking if the theft date is more recent than the car model year.
+This is to validate that data entered in this dataset is reliable and valid. 
+The results of this query included 19 theft records where 2022 car models were stolen in 2021.
+This is fine because newer car models are typically intoduced for sale up to 1 year in advance.
+
+*/
+
+ 
+
+## USE a temporary table to store cleaned (non-duplicate & non null values)
+WITH Cleaned_Stolen_VehicleDB as (
+    SELECT  * 
+    From StolenVehicles_Dataset.cleaned_stolenvehicles
+    WHERE VehicleType is not null and VehicleDesc is not null 
+
+    )
+
+## Check location names
+SELECT DISTINCT location,
+FROM Cleaned_Stolen_VehicleDB
+
+/* 
+Decided to replace forward slash with an underscore for easy readability.
+*/
+
+
+## Update Counties/Manukau to Counties_Manukau
+UPDATE  StolenVehicles_Dataset.cleaned_stolenvehicles
+SET location='Counties_Manukau' where location='Counties/Manukau'
+
+
